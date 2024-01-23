@@ -7,10 +7,11 @@ export default function Header(props){
   const [todo, setTodo] = useState('');
 
   const handleAddtodo = () => {
-    const tid = Math.round(Math.random() * 1E9);
-    console.log(`todo ==>> ${todo}, ${tid}`);
-    props.addTodo({tid:tid, text:todo, completed:false, isEditing:false});
+    console.log(`todo ==>> ${todo}`);
+    axios.post("http://192.168.50.31:8000/todo/insert",{content:todo, isCompleted:false, isEditing:false})
+    .then(result=>{props.setUpdate(!props.update)});
     setTodo('');
+    
   }
 
   return(

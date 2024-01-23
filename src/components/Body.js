@@ -7,37 +7,30 @@ import axios from 'axios';
 export default function Body(props) {
   const [todoList, setTodoList] = useState([]);
   const [todoText, setTodoText] = useState("");
-  const handleCheck = (tid) => {
-    const updateCheck = props.todoList.filter(todo => todo.tid === tid ? todo.completed = !todo.completed : todo.completed)
-    setTodoList(updateCheck) //setTodoList에 변경되었다는 신호만 줄 뿐이라서 불필요한 렌더링이 일어남 (깜빡임)
+  
+  const handleCheck = (tid,isCompleted) => {
+    axios.put(`http://192.168.50.31:8000/todo/${isCompleted}/${tid}`)
+    .then(result=>{props.setUpdate(!props.update)})
+
   }
 
   const handleRemove = (tid) => {
-    const removeIndex = props.todoList.findIndex(todo => todo.tid === tid)
-    const removeList = props.todoList.splice(removeIndex,1)
-    setTodoList([])
+    axios.delete(`http://192.168.50.31:8000/todo/${tid}`)
+    .then(result=>{props.setUpdate(!props.update)})
   }
-  const handleEdit = (tid) => {
-    const updateCheck = props.todoList.filter(todo => todo.tid === tid ? todo.isEditing = !todo.isEditing : todo.isEditing)
-    setTodoList(updateCheck)
+  const handleEdit = (tid,isEditing) => {
+    axios.put(`http://192.168.50.31:8000/todo/edit/${isEditing}/${tid}`)
+    .then(result=>{props.setUpdate(!props.update)})
   }
-  const handleUpdate = (tid) => {
-    const updateList = todoList.filter(todo=>{
-      if(todo.tid === tid){
-        todo.text = todoText
-        todo.isEditing = !todo.isEditing;
-      }
-    })
-    setTodoList(updateList)
+
+  const handleUpdate = (tid,isEditing) => {
+    axios.put(`http://192.168.50.31:8000/todo/edit/${isEditing}/${tid}/${todoText}`)
+    .then(result=>{props.setUpdate(!props.update)})
   }
 
   useEffect(() => {
-    console.log("updated");
-    setTodoList(props.todoList)
-    axios.get('http://192.168.50.31:8000/todo').then(result=>{console.log(result.data)})
-    // https://stackoverflow.com/questions/33704130/react-native-android-fetch-failing-on-connection-to-local-api
-    //
-  })
+    axios.get('http://192.168.50.31:8000/todo').then(result=>{setTodoList(result.data);})
+  },[props.update])
   
 
 
@@ -46,8 +39,8 @@ export default function Body(props) {
       {todoList.map((todo) =>
         <View key={todo.tid} style={styles.todo}>
           <View style={styles.todoLeft}>
-            {todo.completed ?
-              <TouchableOpacity onPress={() => handleCheck(todo.tid)}>
+            {todo.isCompleted === 1 ?
+              <TouchableOpacity onPress={() => handleCheck(todo.tid,todo.isCompleted)}>
                 <MaterialCommunityIcons
                   style={styles.icons}
                   name="checkbox-outline"
@@ -55,7 +48,7 @@ export default function Body(props) {
                   color="black" />
               </TouchableOpacity>
               :
-              <TouchableOpacity onPress={() => handleCheck(todo.tid)}>
+              <TouchableOpacity onPress={() => handleCheck(todo.tid,todo.isCompleted)}>
                 <MaterialCommunityIcons
                   style={styles.icons}
                   name="checkbox-blank-outline"
@@ -65,18 +58,18 @@ export default function Body(props) {
             }
 
             {todo.isEditing ?
-              <TextInput onChangeText={setTodoText}> {todo.text} </TextInput>
+              <TextInput onChangeText={setTodoText}> {todo.content} </TextInput>
               :
-              <TextInput style={{color:"black"}} editable={false}> {todo.text} </TextInput>
+              <TextInput style={{color:"black"}} editable={false}> {todo.content} </TextInput>
             }
           </View>
           <View style={styles.todoLeft}>
-            {todo.isEditing ?
-              <TouchableOpacity onPress={() => handleUpdate(todo.tid)}>
+            {todo.isEditing === 1 ?
+              <TouchableOpacity onPress={() => handleUpdate(todo.tid,todo.isEditing,todo.content)}>
                 <MaterialIcons style={styles.icons} name="check" size={24} color="black" />
               </TouchableOpacity>
               :
-              <TouchableOpacity onPress={() => handleEdit(todo.tid)}>
+              <TouchableOpacity onPress={() => handleEdit(todo.tid,todo.isEditing)}>
                 <MaterialIcons style={styles.icons} name="edit" size={24} color="black" />
               </TouchableOpacity>
             }
