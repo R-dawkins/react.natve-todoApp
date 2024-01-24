@@ -1,32 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import Header from './src/components/Header';
-import Body from './src/components/Body';
-import { useState } from 'react';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import LoginScreen from './src/components/LoginScreen'
+import TodoScreen from './src/components/TodoScreen'
 
-export default function App() {
-  const [todoList, setTodoList] = useState([]);
-  const [update,setUpdate] = useState(false);
-  return (
-    <View style={styles.container}>
-      <StatusBar style="auto" />
-      <Text style={styles.title}>Todo List!</Text>
-      <Header setUpdate={setUpdate} update={update} />
-      <Body todoList={todoList} setUpdate={setUpdate} update={update}/>
-    </View>
-  );
+const Stack = createStackNavigator();
+
+const App = () => {
+  return(
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="LoginScreen" component={LoginScreen}/>
+        <Stack.Screen name="TodoScreen" component={TodoScreen}/>
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    marginTop: 50,
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: '800',
-    marginLeft: 30,
-    marginBottom : 20
-  }
-});
+export default App
